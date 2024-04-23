@@ -41,7 +41,6 @@ var retriggerCmd = &cobra.Command{
 		if verbose {
 			log.SetLevel(log.DebugLevel)
 		}
-		log.SetLevel(log.DebugLevel)
 
 		// Ensure that the username and password are set
 		if isInteractive {
@@ -147,15 +146,21 @@ func loop(username, password, workDir, courseID, taskID string, desiredPercentag
 
 	log.Info("Starting the Artemis task... 🚀")
 	timer := time.NewTimer(1 * time.Millisecond)
+	timeout := time.NewTimer(10 * time.Minute)
 	for {
 		select {
+		case <-timeout.C:
+			log.Error("Timeout reached, exiting...")
+			return true
 		case <-timer.C:
 			// Retrigger the task
+			timeout.Stop()
 			err = retriggerTask(task)
 			if err != nil {
 				log.Errorf("Could not retrigger the task: %s", err.Error())
 				return true
 			}
+			timeout.Reset(10 * time.Minute)
 		case msg := <-client.WS.Messages():
 			err, shouldRetrigger := handleWSMessage(client, task, msg)
 			if err != nil {
@@ -195,8 +200,8 @@ func handleWSMessage(client *artemis.ArtemisClient, task *artemis.Task, msg *soc
 	switch msg.Headers["destination"] {
 	case "/user/topic/newSubmissions":
 		if expectingResult {
-			log.Warn("Artemis had a little hiccup and sent a new submission before the results -> retrigger 🤔")
-			return nil, true
+			log.Warn("Artemis had a little hiccup and sent a new submission before the results 🤔")
+			return nil, false
 		}
 
 		log.Info("Artemis is building a new submission 📦")
