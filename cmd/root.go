@@ -32,8 +32,9 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "artemisbot",
-	Short: "Artemis programming exercise automation",
+	Version: "0.1.0",
+	Use:     "artemisbot",
+	Short:   "Artemis programming exercise automation",
 	Long: `ArtemisBot makes it easy to navigate the flakes of the Artemis platform
 by automatically handling the submission of programming exercises.`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
