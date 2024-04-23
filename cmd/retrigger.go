@@ -126,6 +126,7 @@ func loop(username, password, workDir, courseID, taskID string, desiredPercentag
 		log.Errorf("Could not create a new Artemis task: %s", err.Error())
 		return false
 	}
+	defer task.Cleanup()
 	log.Debug("Artemis task created")
 
 	// Ensure that the desired percentage is not already reached

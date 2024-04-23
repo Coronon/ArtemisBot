@@ -52,6 +52,11 @@ func NewRetriggerTask(
 	return task, nil
 }
 
+// Cleanup the task
+func (t *Task) Cleanup() error {
+	return t.repository.Close()
+}
+
 // Populate the task with the necessary information for working with the Artemis API
 //
 // Normally this should have already been done by the constructor.
